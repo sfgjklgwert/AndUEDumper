@@ -1,6 +1,5 @@
 name: Build Dumper
 
-# Запускаем сборку вручную по кнопке
 on:
   workflow_dispatch: 
 
@@ -9,27 +8,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Скачиваем исходники (ОБЯЗАТЕЛЬНО с сабмодулями, как просит автор в README)
       - name: Скачиваем исходники
         uses: actions/checkout@v4
-
-      - name: Настраиваем Java (нужно для сборки Android)
-        uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          submodules: recursive 
 
-      - name: Даем права на запуск Gradle
-        run: chmod +x ./gradlew
+      # 2. Собираем проект (сервер сам возьмет встроенный NDK)
+      - name: Компилируем через NDK
+        run: |
+          # Указываем путь к NDK, который уже встроен в сервер GitHub
+          export NDK_HOME=$ANDROID_NDK_LATEST_HOME
+          
+          # Заходим во внутреннюю папку и запускаем make
+          cd AndUEDumper
+          make clean && make
 
-      - name: Компилируем проект (сервер сам скачает NDK!)
-        run: ./gradlew assembleDebug
-
+      # 3. Сохраняем готовый билд, чтобы ты мог его скачать
       - name: Загружаем готовый результат
         uses: actions/upload-artifact@v4
         with:
           name: Dumper-Compiled
-          # Сохраняем всё, что скомпилировалось (APK или бинарники)
-          path: |
-            app/build/outputs/
-            **/libs/
-            **/obj/
+          # Забираем папку libs, куда NDK выплёвывает готовые бинарники
+          path: AndUEDumper/libs/
