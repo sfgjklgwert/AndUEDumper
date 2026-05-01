@@ -8,26 +8,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Скачиваем исходники (ОБЯЗАТЕЛЬНО с сабмодулями, как просит автор в README)
       - name: Скачиваем исходники
         uses: actions/checkout@v4
         with:
           submodules: recursive 
 
-      # 2. Собираем проект (сервер сам возьмет встроенный NDK)
       - name: Компилируем через NDK
         run: |
-          # Указываем путь к NDK, который уже встроен в сервер GitHub
-          export NDK_HOME=$ANDROID_NDK_LATEST_HOME
-          
-          # Заходим во внутреннюю папку и запускаем make
           cd AndUEDumper
-          make clean && make
+          # Запускаем напрямую ndk-build вместо make
+          $ANDROID_NDK_LATEST_HOME/ndk-build
 
-      # 3. Сохраняем готовый билд, чтобы ты мог его скачать
       - name: Загружаем готовый результат
         uses: actions/upload-artifact@v4
         with:
           name: Dumper-Compiled
-          # Забираем папку libs, куда NDK выплёвывает готовые бинарники
           path: AndUEDumper/libs/
