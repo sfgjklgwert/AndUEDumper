@@ -1,0 +1,35 @@
+name: Build Dumper
+
+# Запускаем сборку вручную по кнопке
+on:
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Скачиваем исходники
+        uses: actions/checkout@v3
+
+      - name: Настраиваем Java (нужно для сборки Android)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Даем права на запуск Gradle
+        run: chmod +x ./gradlew
+
+      - name: Компилируем проект (сервер сам скачает NDK!)
+        run: ./gradlew assembleDebug
+
+      - name: Загружаем готовый результат
+        uses: actions/upload-artifact@v3
+        with:
+          name: Dumper-Compiled
+          # Сохраняем всё, что скомпилировалось (APK или бинарники)
+          path: |
+            app/build/outputs/
+            **/libs/
+            **/obj/
