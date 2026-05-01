@@ -16,8 +16,7 @@ jobs:
       - name: Компилируем через NDK
         run: |
           cd AndUEDumper
-          # Запускаем напрямую ndk-build вместо make
-          $ANDROID_NDK_LATEST_HOME/ndk-build
+          $ANDROID_NDK_LATEST_HOME/ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=Android.mk NDK_APPLICATION_MK=Application.mk
 
       - name: Загружаем готовый результат
         uses: actions/upload-artifact@v4
